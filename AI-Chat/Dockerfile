@@ -24,6 +24,9 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 
+# npm is not required to run the standalone Next.js server.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+
 # Utilisateur non-root
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
