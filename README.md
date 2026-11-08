@@ -1,6 +1,6 @@
 # AI-Chat App
 
-Full-stack AI chat application built with Next.js, integrating three Ollama models (llama3, llava, gemma4) with a complete CI/CD pipeline and automated GitOps deployment on Kubernetes.
+Full-stack AI chat application built with Next.js. It discovers installed Ollama models and exposes their supported capabilities through a generic chat interface, with CI/CD and GitOps deployment on Kubernetes.
 
 ## 📋 Table of contents
 
@@ -18,15 +18,9 @@ Full-stack AI chat application built with Next.js, integrating three Ollama mode
 
 ## 🎯 Overview
 
-AI-Chat is a self-hosted AI chat platform that allows interaction with three different models through a web interface. The application communicates with an Ollama server deployed on Kubernetes for model inference.
+AI-Chat is a self-hosted AI chat platform that discovers the models installed in Ollama and lets users chat with them through a web interface. The application communicates with an Ollama server deployed on Kubernetes for model inference.
 
-**Available models:**
-
-| Model | Capabilities | Route |
-|---|---|---|
-| `llama3:8b` | Text generation | `/llama` |
-| `llava:7b` | Text + image + audio analysis | `/llava` |
-| `gemma4:12b` | Text + image + audio + video | `/gemma` |
+The home page fetches the installed model list from Ollama and checks each model's capabilities via `/api/show`. Every listed model opens the same general chat and is sent to Ollama by its exact model name; no model names are hard-coded into the home page. The image upload is shown only when Ollama reports the `vision` capability, and the API checks this capability again before sending an image. Install another model with `ollama pull <model>`, then refresh the page.
 
 ## 🏗️ Architecture
 
@@ -36,9 +30,8 @@ User
     ▼
 Next.js Frontend (port 3000)
     │
-    ├── /llama  → POST /api/llama  → Ollama (llama3:8b)
-    ├── /llava  → POST /api/llava  → Ollama (llava:7b)
-    └── /gemma  → POST /api/gemma  → Ollama (gemma4:12b)
+    ├── GET /api/models → Ollama /api/tags + /api/show
+    └── /chat → POST /api/chat → selected installed Ollama model
                           │
                           ▼
               http://ollama:11434/api/generate
@@ -48,7 +41,7 @@ Next.js Frontend (port 3000)
 **Technical stack:**
 - **Frontend**: Next.js 16 (App Router, TypeScript)
 - **Styling**: Tailwind CSS
-- **Tests**: Jest + ts-jest (23 unit tests)
+- **Tests**: Jest + ts-jest (28 unit tests)
 - **CI/CD**: GitHub Actions
 - **Registry**: GitHub Container Registry (GHCR)
 - **Deployment**: Kubernetes (K3s) via ArgoCD GitOps
@@ -111,79 +104,30 @@ Starts the Next.js app and Ollama together.
 
 ## 🔌 API routes
 
-### POST `/api/llama`
+### POST `/api/chat`
 
-Text generation with **llama3:8b**.
+Generic text-generation and image-analysis route. The selected model name is required. Images are allowed only for models whose Ollama capabilities include `vision`.
 
 **Body:**
 ```json
 {
+  "model": "qwen2.5:7b",
   "prompt": "Explain Kubernetes in 3 lines"
 }
 ```
 
+### GET `/api/models`
+
+Returns all installed model names and capabilities, as reported by the Ollama `/api/tags` and `/api/show` endpoints.
+
 **Response:**
 ```json
 {
-  "response": "Kubernetes is a container orchestrator..."
+  "models": [
+    { "name": "qwen2.5vl:7b", "capabilities": ["completion", "vision"] }
+  ]
 }
 ```
-
-**Return codes:**
-- `200` — response generated successfully
-- `400` — missing prompt
-- `500` — Ollama or network error
-
----
-
-### POST `/api/llava`
-
-Text + image + audio analysis with **llava:7b**.
-
-**Body:**
-```json
-{
-  "prompt": "Describe this image",
-  "image": "<base64>",
-  "audio": "<base64>"
-}
-```
-
-> `prompt`, `image`, and `audio` are optional, but at least one is required. If `prompt` is missing, it defaults to `"Analyze this content"`.
-
-**Return codes:**
-- `200` — response generated
-- `400` — prompt, image, and audio all missing
-- `500` — Ollama or network error
-
----
-
-### POST `/api/gemma`
-
-Multimodal analysis with **gemma4:12b** — text, image, audio, and video.
-
-**Body:**
-```json
-{
-  "prompt": "Analyze this content",
-  "image": "<base64>",
-  "audio": "<base64>",
-  "video": "<base64>"
-}
-```
-
-> At least one field is required. If `prompt` is missing, it defaults to `"Analyze this content"`.
-
-**Return codes:**
-- `200` — response generated
-- `400` — all fields missing
-- `500` — Ollama or network error
-
----
-
-### POST `/api/chat`
-
-Generic route using **llava:7b** — alias for `/api/llava`.
 
 ## 🧪 Tests
 
@@ -200,11 +144,10 @@ npm run test:watch
 **Expected result:**
 ```
 PASS  test/api.test.ts
-  POST /api/llama    ✓ 6 tests
-  POST /api/llava    ✓ 8 tests
-  POST /api/gemma    ✓ 9 tests
+  GET /api/models    ✓ 3 tests
+  POST /api/chat     ✓ 5 tests
 
-Tests: 23 passed, 23 total
+Tests: 8 passed, 8 total
 ```
 
 **What the tests validate:**
@@ -212,9 +155,9 @@ Tests: 23 passed, 23 total
 - `400` status when required fields are missing
 - `500` status if Ollama returns an error
 - `500` status on network error (fetch throw)
-- Correct model used in the request body (`llama3:8b`, `llava:7b`, `gemma4:12b`)
+- Selected Ollama model used for generation
 - Ollama response trimmed correctly
-- Media (image, audio, video) passed through or ignored correctly
+- Images are accepted only when Ollama reports the `vision` capability
 
 ## 🔄 CI/CD pipeline
 
@@ -225,7 +168,7 @@ push main
   │
   ├── lint (ESLint) ──────────────────────┐
   │                                        ├── build (Docker)
-  ├── tests (Jest 23 tests) ──────────────┘       │
+  ├── tests (Jest 8 tests) ──────────────┘       │
   │                                               ▼
   │                                       security (Trivy scan)
   │                                               │
@@ -274,19 +217,17 @@ AI-Chat-app/
 ├── AI-Chat/
 │   ├── app/
 │   │   ├── api/
-│   │   │   ├── chat/route.ts   # Generic route (llava:7b)
-│   │   │   ├── gemma/route.ts  # gemma4:12b route
-│   │   │   ├── llama/route.ts  # llama3:8b route
-│   │   │   └── llava/route.ts  # llava:7b route
-│   │   ├── gemma/page.tsx      # Gemma chat page
-│   │   ├── llama/page.tsx      # Llama chat page
-│   │   ├── llava/page.tsx      # Llava chat page
+│   │   │   ├── chat/route.ts   # Generic model chat route
+│   │   │   ├── models/route.ts # Lists installed Ollama models
+│   │   │   ├── chat/route.ts   # Dynamic model chat and vision checks
+│   │   │   └── models/route.ts # Lists models and capabilities
+│   │   ├── chat/page.tsx       # Chat page for other installed models
 │   │   ├── globals.css
 │   │   ├── layout.tsx
 │   │   └── page.tsx            # Home page
 │   ├── public/
 │   ├── test/
-│   │   └── api.test.ts         # 23 unit tests
+│   │   └── api.test.ts         # 8 unit tests
 │   ├── .dockerignore
 │   ├── .trivyignore            # Ignored CVEs (devDependencies)
 │   ├── Dockerfile
