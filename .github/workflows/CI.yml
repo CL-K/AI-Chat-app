@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/ai-chat-app
+  IMAGE_NAME: ghcr.io/cl-k/ai-chat-app
 
 jobs:
   # 1. Code linting
