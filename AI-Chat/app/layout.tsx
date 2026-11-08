@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "AI Chat",
-  description: "Chat avec Llama et Llava",
+  description: "Chat avec les modèles installés dans Ollama",
 };
 
 export default function RootLayout({

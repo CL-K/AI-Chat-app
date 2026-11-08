@@ -24,7 +24,8 @@ body {
 /* ========== HOME PAGE ========== */
 .home-container {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
+  height: auto;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
 }
 
@@ -34,6 +35,7 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
+  min-height: 100vh;
   max-width: 56rem;
   margin: 0 auto;
   padding: 1.5rem;
@@ -58,16 +60,9 @@ body {
 
 .cards-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
   gap: 2rem;
   width: 100%;
-  max-width: 70rem;
-}
-
-@media (min-width: 768px) {
-  .cards-grid {
-    grid-template-columns: 1fr 1fr 1fr;
-  }
 }
 
 .card {
@@ -87,16 +82,8 @@ body {
   transform: scale(1.05);
 }
 
-.card-llama {
-  background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
-}
-
-.card-llava {
-  background: linear-gradient(135deg, #2563eb 0%, #9333ea 100%);
-}
-
-.card-gemma {
-  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+.card-model {
+  background: linear-gradient(135deg, #475569 0%, #334155 100%);
 }
 
 .card-emoji {
@@ -136,6 +123,40 @@ body {
   font-size: 0.875rem;
 }
 
+.home-footer p {
+  margin-bottom: 0.75rem;
+}
+
+.model-status {
+  color: #cbd5e1;
+  text-align: center;
+  line-height: 1.7;
+}
+
+.model-status code {
+  color: white;
+  background: #334155;
+  border-radius: 0.25rem;
+  padding: 0.15rem 0.35rem;
+}
+
+.model-error {
+  color: #fca5a5;
+}
+
+.retry-button {
+  color: white;
+  background: #334155;
+  border: 1px solid #64748b;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.retry-button:hover {
+  background: #475569;
+}
+
 /* ========== CHAT PAGES ========== */
 .chat-container {
   display: flex;
@@ -159,12 +180,8 @@ body {
   justify-content: space-between;
 }
 
-.chat-header-llama {
-  background: linear-gradient(90deg, #ea580c 0%, #dc2626 100%);
-}
-
-.chat-header-llava {
-  background: linear-gradient(90deg, #2563eb 0%, #9333ea 100%);
+.chat-header-model {
+  background: linear-gradient(90deg, #475569 0%, #334155 100%);
 }
 
 .chat-header-left h1 {
@@ -265,21 +282,9 @@ body {
   border-bottom-right-radius: 0.5rem;
 }
 
-.message-assistant-llama {
-  background: #92400e;
-  color: #fef3c7;
-  border-bottom-left-radius: 0.5rem;
-}
-
-.message-assistant-llava {
-  background: #1e293b;
-  color: #cbd5e1;
-  border-bottom-left-radius: 0.5rem;
-}
-
-.message-assistant-gemma {
-  background: #1e293b;
-  color: #06b6d4;
+.message-assistant-model {
+  background: #334155;
+  color: white;
   border-bottom-left-radius: 0.5rem;
 }
 

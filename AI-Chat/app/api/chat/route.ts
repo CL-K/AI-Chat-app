@@ -1,29 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getModelCapabilities, getOllamaUrl } from '../../lib/ollama';
 
 export async function POST(request: NextRequest) {
   try {
-    const { prompt, image, audio } = await request.json();
+    const { model, prompt, image } = await request.json();
 
-    if (!prompt && !image && !audio) {
+    if (typeof model !== 'string' || !model.trim()) {
       return NextResponse.json(
-        { error: 'Prompt, image or audio is required' },
+        { error: 'Model is required' },
         { status: 400 }
       );
     }
 
-    const fullPrompt = prompt; // fixed: const instead of let
+    if (typeof prompt !== 'string' || !prompt.trim()) {
+      return NextResponse.json(
+        { error: 'Prompt is required' },
+        { status: 400 }
+      );
+    }
 
-    // Call Ollama with Llava
-    const ollamaResponse = await fetch('http://ollama:11434/api/generate', {
+    if (image !== undefined && image !== null && typeof image !== 'string') {
+      return NextResponse.json(
+        { error: 'Image must be a base64 string' },
+        { status: 400 }
+      );
+    }
+
+    if (image) {
+      const capabilities = await getModelCapabilities(model.trim());
+      if (!capabilities.includes('vision')) {
+        return NextResponse.json(
+          { error: `Le modèle ${model.trim()} ne prend pas en charge les images` },
+          { status: 400 }
+        );
+      }
+    }
+
+    const ollamaResponse = await fetch(getOllamaUrl('/api/generate'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llava:7b',
-        prompt: fullPrompt,
+        model: model.trim(),
+        prompt,
         images: image ? [image] : undefined,
-        audio: audio ? audio : undefined,
         stream: false,
       }),
     });
@@ -53,6 +74,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// Alias for backward compatibility - redirect to /llava
-export { POST as POST_LLAVA };
