@@ -55,7 +55,7 @@ export default function LlamaChat() {
         ...prev,
         {
           role: 'assistant',
-          content: 'Erreur: Impossible de se connecter au serveur',
+          content: 'Error: Unable to connect to the server',
         },
       ]);
     } finally {
@@ -70,10 +70,10 @@ export default function LlamaChat() {
         <div className="chat-header chat-header-llama">
           <div className="chat-header-left">
             <h1>🦙 Llama Chat</h1>
-            <p>Conversez avec Llama 3.8B</p>
+            <p>Chat with Llama 3.8B</p>
           </div>
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <button className="back-button">← Retour</button>
+            <button className="back-button">← Back</button>
           </Link>
         </div>
 
@@ -82,8 +82,8 @@ export default function LlamaChat() {
             <div className="empty-state">
               <div className="empty-state-content">
                 <div className="empty-emoji">🦙</div>
-                <h2>Bienvenue sur Llama</h2>
-                <p>Posez une question pour commencer une conversation</p>
+                <h2>Welcome to Llama</h2>
+                <p>Ask a question to start a conversation</p>
               </div>
             </div>
           )}
@@ -119,7 +119,7 @@ export default function LlamaChat() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Écrivez votre message..."
+              placeholder="Type your message..."
               className="text-input"
               disabled={loading}
             />
@@ -128,7 +128,7 @@ export default function LlamaChat() {
               disabled={loading || !input.trim()}
               className="send-button send-button-llama"
             >
-              {loading ? '⏳' : '📤'} Envoyer
+              {loading ? '⏳' : '📤'} Send
             </button>
           </form>
         </div>

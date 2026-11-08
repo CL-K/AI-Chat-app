@@ -8,7 +8,7 @@ env:
   IMAGE_NAME: ghcr.io/${{ secrets.GHCR_USERNAME }}/ai-chat-app
 
 jobs:
-  # 1. Lint (qualité du code)
+  # 1. Code linting
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -28,7 +28,7 @@ jobs:
         run: npm run lint
         working-directory: ./AI-Chat
 
-  # 2. Tests unitaires
+  # 2. Unit tests
   tests:
     runs-on: ubuntu-latest
     steps:
@@ -53,7 +53,7 @@ jobs:
         working-directory: ./AI-Chat
         continue-on-error: true
 
-  # 3. Build & Push image (seulement si lint + tests passent)
+  # 3. Build and push image (only if lint + tests pass)
   build:
     runs-on: ubuntu-latest
     needs: [lint, tests]
@@ -84,7 +84,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # 4. Security Scan (bloquant sur CRITICAL/HIGH)
+  # 4. Security scan (blocking on CRITICAL/HIGH)
   security:
     runs-on: ubuntu-latest
     needs: build
@@ -92,7 +92,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      # Checkout nécessaire pour lire le .trivyignore
+      # Checkout required to read .trivyignore
       - uses: actions/checkout@v4
 
       - name: Scan Docker image with Trivy
@@ -113,7 +113,7 @@ jobs:
           username: ${{ secrets.GHCR_USERNAME }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      # Promote latest uniquement si le scan passe
+      # Promote latest only if the scan passes
       - name: Promote image to latest
         if: success()
         run: |
@@ -121,7 +121,7 @@ jobs:
           docker tag ${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ env.IMAGE_NAME }}:latest
           docker push ${{ env.IMAGE_NAME }}:latest
 
-  # 5. Mise à jour du repo infra (GitOps) — uniquement si scan OK
+  # 5. Infrastructure repo update (GitOps) — only if scan passes
   update-infra:
     runs-on: ubuntu-latest
     needs: security
@@ -132,11 +132,11 @@ jobs:
           ref: main
           token: ${{ secrets.INFRA_REPO_TOKEN }}
 
-      - name: Mettre à jour le manifest avec le nouveau tag
+      - name: Update the manifest with the new tag
         run: |
           sed -i "s|${{ env.IMAGE_NAME }}:.*|${{ env.IMAGE_NAME }}:${{ github.sha }}|g" frontend.yaml
 
-      - name: Commit et push
+      - name: Commit and push
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"

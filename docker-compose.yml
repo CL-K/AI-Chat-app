@@ -1,5 +1,5 @@
 services:
-  # Service Ollama avec les modèles Llama et Llava
+  # Ollama service with the Llama and Llava models
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
@@ -19,7 +19,7 @@ services:
       tail -f /dev/null
       "
 
-  # Service Next.js Frontend
+  # Next.js frontend service
   frontend:
     build:
       context: ./testollama
@@ -28,7 +28,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      # Variables pour faire appel à Ollama
+      # Variables used to connect to Ollama
       OLLAMA_API_URL: "http://ollama:11434"
       NODE_ENV: production
     depends_on:
@@ -36,7 +36,7 @@ services:
     networks:
       - ai_network
     restart: unless-stopped
-    # Pour développement avec hot-reload (optionnel)
+    # For development with hot reload (optional)
     # volumes:
     #   - ./testollama:/app
     #   - /app/node_modules

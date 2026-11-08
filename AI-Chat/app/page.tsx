@@ -8,7 +8,7 @@ export default function Home() {
       <div className="home-content">
         <div className="home-header">
           <h1>AI Chat</h1>
-          <p>Choisissez votre modèle IA préféré</p>
+          <p>Choose your favorite AI model</p>
         </div>
 
         <div className="cards-grid">
@@ -17,15 +17,15 @@ export default function Home() {
               <div className="card-emoji">🦙</div>
               <h2 className="card-title">Llama</h2>
               <p className="card-description">
-                Chat rapide et puissant basé sur du texte
+                Fast and powerful text chat
               </p>
               <div className="card-info">
                 <p>
-                  💬 Conversations naturelles
+                  💬 Natural conversations
                   <br />
-                  ⚡ Réponses rapides
+                  ⚡ Fast responses
                   <br />
-                  🧠 Modèle Llama 3.8B
+                  🧠 Llama 3.8B model
                 </p>
               </div>
             </div>
@@ -36,15 +36,15 @@ export default function Home() {
               <div className="card-emoji">🎨</div>
               <h2 className="card-title">Llava</h2>
               <p className="card-description">
-                Vision IA pour analyser vos images
+                Vision AI to analyze your images
               </p>
               <div className="card-info">
                 <p>
-                  🖼️ Analyse d&apos;images
+                  🖼️ Image analysis
                   <br />
-                  📸 Vision par IA
+                  📸 AI vision
                   <br />
-                  🎯 Modèle Llava 7B
+                  🎯 Llava 7B model
                 </p>
               </div>
             </div>
@@ -55,13 +55,13 @@ export default function Home() {
               <div className="card-emoji">✨</div>
               <h2 className="card-title">Gemma</h2>
               <p className="card-description">
-                Modèle avancé pour conversations intelligentes
+                Advanced model for intelligent conversations
               </p>
               <div className="card-info">
                 <p>
-                  💬 Réponses détaillées
+                  💬 Detailed responses
                   <br />
-                  🚀 Modèle puissant
+                  🚀 Powerful model
                   <br />
                   🧠 Gemma 4 12B
                 </p>

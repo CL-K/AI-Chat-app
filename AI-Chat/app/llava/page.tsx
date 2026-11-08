@@ -96,7 +96,7 @@ export default function LlavaChat() {
         ...prev,
         {
           role: 'assistant',
-          content: 'Erreur: Impossible de se connecter au serveur',
+          content: 'Error: Unable to connect to the server',
         },
       ]);
     } finally {
@@ -115,10 +115,10 @@ export default function LlavaChat() {
         <div className="chat-header chat-header-llava">
           <div className="chat-header-left">
             <h1>🎨 Llava Chat</h1>
-            <p>Analysez images et audio avec l&apos;IA de vision</p>
+            <p>Analyze images and audio with vision AI</p>
           </div>
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <button className="back-button">← Retour</button>
+            <button className="back-button">← Back</button>
           </Link>
         </div>
 
@@ -127,8 +127,8 @@ export default function LlavaChat() {
             <div className="empty-state">
               <div className="empty-state-content">
                 <div className="empty-emoji">🎯</div>
-                <h2>Bienvenue sur Llava</h2>
-                <p>Uploadez une image et/ou un audio pour commencer à analyser avec Llava</p>
+                <h2>Welcome to Llava</h2>
+                <p>Upload an image and/or audio to start analyzing with Llava</p>
               </div>
             </div>
           )}
@@ -152,7 +152,7 @@ export default function LlavaChat() {
                   {message.audio && (
                     <audio controls className="message-audio">
                       <source src={message.audio} type="audio/mpeg" />
-                      Votre navigateur ne supporte pas l&apos;audio.
+                      Your browser does not support audio.
                     </audio>
                   )}
                   <p>{message.content}</p>
@@ -191,7 +191,7 @@ export default function LlavaChat() {
                 }}
                 className="remove-button"
               >
-                Supprimer image
+                Remove image
               </button>
             </div>
           </div>
@@ -202,7 +202,7 @@ export default function LlavaChat() {
             <div className="preview-box">
               <audio controls className="preview-audio">
                 <source src={audioPreview} type="audio/mpeg" />
-                Votre navigateur ne supporte pas l&apos;audio.
+                Your browser does not support audio.
               </audio>
               <button
                 type="button"
@@ -212,7 +212,7 @@ export default function LlavaChat() {
                 }}
                 className="remove-button"
               >
-                Supprimer audio
+                Remove audio
               </button>
             </div>
           </div>
@@ -252,7 +252,7 @@ export default function LlavaChat() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Posez votre question..."
+              placeholder="Ask your question..."
               className="text-input"
               disabled={loading}
             />

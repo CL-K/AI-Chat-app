@@ -115,7 +115,7 @@ export default function GemmaChat() {
         ...prev,
         {
           role: 'assistant',
-          content: 'Erreur: Impossible de se connecter au serveur',
+          content: 'Error: Unable to connect to the server',
         },
       ]);
     } finally {
@@ -136,10 +136,10 @@ export default function GemmaChat() {
         <div className="chat-header chat-header-gemma">
           <div className="chat-header-left">
             <h1>✨ Gemma Chat</h1>
-            <p>Analyse multimédia : texte, image, audio et vidéo</p>
+            <p>Multimodal analysis: text, image, audio, and video</p>
           </div>
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <button className="back-button">← Retour</button>
+            <button className="back-button">← Back</button>
           </Link>
         </div>
 
@@ -148,8 +148,8 @@ export default function GemmaChat() {
             <div className="empty-state">
               <div className="empty-state-content">
                 <div className="empty-emoji">✨</div>
-                <h2>Bienvenue sur Gemma</h2>
-                <p>Utilisez du texte, des images, de l&apos;audio ou de la vidéo pour interagir</p>
+                <h2>Welcome to Gemma</h2>
+                <p>Use text, images, audio, or video to interact</p>
               </div>
             </div>
           )}
@@ -173,13 +173,13 @@ export default function GemmaChat() {
                   {message.audio && (
                     <audio controls className="message-audio">
                       <source src={message.audio} type="audio/mpeg" />
-                      Votre navigateur ne supporte pas l&apos;audio.
+                      Your browser does not support audio.
                     </audio>
                   )}
                   {message.video && (
                     <video controls className="message-video">
                       <source src={message.video} type="video/mp4" />
-                      Votre navigateur ne supporte pas la vidéo.
+                      Your browser does not support video.
                     </video>
                   )}
                   <p>{message.content}</p>
@@ -237,7 +237,7 @@ export default function GemmaChat() {
                 onClick={() => videoInputRef.current?.click()}
                 className="video-button"
               >
-                🎥 Vidéo
+                🎥 Video
               </button>
               <input
                 ref={videoInputRef}
@@ -247,12 +247,12 @@ export default function GemmaChat() {
                 className="hidden-file-input"
               />
             </div>
-            
+
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Posez votre question..."
+              placeholder="Ask your question..."
               disabled={loading}
               className="text-input"
             />
@@ -261,7 +261,7 @@ export default function GemmaChat() {
               disabled={loading || (!input.trim() && !imageData && !audioData && !videoData)}
               className="send-button send-button-gemma"
             >
-              {loading ? '⏳' : '✈️'} Envoyer
+              {loading ? '⏳' : '✈️'} Send
             </button>
           </form>
         </div>
@@ -286,7 +286,7 @@ export default function GemmaChat() {
                     }}
                     className="remove-button"
                   >
-                    Supprimer image
+                    Remove image
                   </button>
                 </>
               )}
@@ -294,7 +294,7 @@ export default function GemmaChat() {
                 <>
                   <audio controls className="preview-audio">
                     <source src={audioPreview} type="audio/mpeg" />
-                    Votre navigateur ne supporte pas l&apos;audio.
+                    Your browser does not support audio.
                   </audio>
                   <button
                     type="button"
@@ -304,7 +304,7 @@ export default function GemmaChat() {
                     }}
                     className="remove-button"
                   >
-                    Supprimer audio
+                    Remove audio
                   </button>
                 </>
               )}
@@ -312,7 +312,7 @@ export default function GemmaChat() {
                 <>
                   <video controls className="preview-video">
                     <source src={videoPreview} type="video/mp4" />
-                    Votre navigateur ne supporte pas la vidéo.
+                    Your browser does not support video.
                   </video>
                   <button
                     type="button"
@@ -322,7 +322,7 @@ export default function GemmaChat() {
                     }}
                     className="remove-button"
                   >
-                    Supprimer vidéo
+                    Remove video
                   </button>
                 </>
               )}

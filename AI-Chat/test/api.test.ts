@@ -1,12 +1,12 @@
-/**
- * Tests des routes API — llama, llava, gemma
- * Mock de fetch vers Ollama (http://ollama:11434)
+﻿/**
+ * API route tests — llama, llava, gemma
+ * Mock fetch to Ollama (http://ollama:11434)
  */
 
 import { NextRequest } from 'next/server';
 
 // ============================================================
-// Type pour le mock de NextResponse
+// Type for the NextResponse mock
 // ============================================================
 type MockResponse = {
   data: Record<string, unknown>;
@@ -14,7 +14,7 @@ type MockResponse = {
 };
 
 // ============================================================
-// Mock de next/server
+// Mock next/server
 // ============================================================
 jest.mock('next/server', () => ({
   NextRequest: jest.fn(),
@@ -31,7 +31,7 @@ jest.mock('next/server', () => ({
   },
 }));
 
-// Silencer les console.error pendant les tests
+// Silence console.error during tests
 beforeAll(() => {
   jest.spyOn(console, 'error').mockImplementation(() => {});
 });
@@ -44,14 +44,14 @@ afterAll(() => {
 // Helpers
 // ============================================================
 
-// Cast explicite en NextRequest pour satisfaire TypeScript
+// Explicit cast to NextRequest to satisfy TypeScript
 function makeRequest(body: object): NextRequest {
   return {
     json: jest.fn().mockResolvedValue(body),
   } as unknown as NextRequest;
 }
 
-// Mocker une réponse Ollama réussie
+// Mock a successful Ollama response
 function mockOllamaSuccess(response: string) {
   global.fetch = jest.fn().mockResolvedValue({
     ok: true,
@@ -59,7 +59,7 @@ function mockOllamaSuccess(response: string) {
   });
 }
 
-// Mocker une erreur Ollama (ok: false)
+// Mock an Ollama error (ok: false)
 function mockOllamaError(statusText = 'Internal Server Error') {
   global.fetch = jest.fn().mockResolvedValue({
     ok: false,
@@ -67,12 +67,12 @@ function mockOllamaError(statusText = 'Internal Server Error') {
   });
 }
 
-// Mocker un crash réseau
+// Mock a network crash
 function mockOllamaNetworkError(message = 'Network error') {
   global.fetch = jest.fn().mockRejectedValue(new Error(message));
 }
 
-// Helper pour appeler une route et caster la réponse
+// Helper to call a route and cast the response
 async function callRoute(
   route: (req: NextRequest) => Promise<unknown>,
   body: object
@@ -81,23 +81,22 @@ async function callRoute(
 }
 
 // ============================================================
-// Import des routes
+// Import routes
 // ============================================================
 import { POST as llamaPost } from '../app/api/llama/route';
 import { POST as llavaPost } from '../app/api/llava/route';
 import { POST as gemmaPost } from '../app/api/gemma/route';
 
 // ============================================================
-// Tests — Route /api/llama (llama3:8b — texte uniquement)
+// Tests — Route /api/llama (llama3:8b — text only)
 // ============================================================
 describe('POST /api/llama', () => {
-
   beforeEach(() => jest.clearAllMocks());
 
-  it('retourne une réponse quand le prompt est valide', async () => {
-    mockOllamaSuccess('  Bonjour depuis llama3  ');
+  it('returns a response when the prompt is valid', async () => {
+    mockOllamaSuccess('  Hello from llama3  ');
 
-    const res = await callRoute(llamaPost, { prompt: 'Bonjour' });
+    const res = await callRoute(llamaPost, { prompt: 'Hello' });
 
     expect(fetch).toHaveBeenCalledWith(
       'http://ollama:11434/api/generate',
@@ -106,11 +105,11 @@ describe('POST /api/llama', () => {
         body: expect.stringContaining('"model":"llama3:8b"'),
       })
     );
-    expect(res.data).toEqual({ response: 'Bonjour depuis llama3' });
+    expect(res.data).toEqual({ response: 'Hello from llama3' });
     expect(res.status).toBe(200);
   });
 
-  it('retourne 400 si le prompt est absent', async () => {
+  it('returns 400 if the prompt is missing', async () => {
     const res = await callRoute(llamaPost, {});
 
     expect(res.status).toBe(400);
@@ -118,14 +117,14 @@ describe('POST /api/llama', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it('retourne 400 si le prompt est une chaîne vide', async () => {
+  it('returns 400 if the prompt is an empty string', async () => {
     const res = await callRoute(llamaPost, { prompt: '' });
 
     expect(res.status).toBe(400);
     expect(res.data).toEqual({ error: 'Prompt is required' });
   });
 
-  it('retourne 500 si Ollama répond avec une erreur', async () => {
+  it('returns 500 if Ollama responds with an error', async () => {
     mockOllamaError('model not found');
 
     const res = await callRoute(llamaPost, { prompt: 'Test' });
@@ -134,7 +133,7 @@ describe('POST /api/llama', () => {
     expect(res.data).toEqual({ error: 'Failed to get response from Ollama' });
   });
 
-  it('retourne 500 si fetch throw une erreur réseau', async () => {
+  it('returns 500 if fetch throws a network error', async () => {
     mockOllamaNetworkError('Connection refused');
 
     const res = await callRoute(llamaPost, { prompt: 'Test' });
@@ -143,29 +142,28 @@ describe('POST /api/llama', () => {
     expect(res.data.error).toBe('Connection refused');
   });
 
-  it('envoie le prompt et les bons paramètres à Ollama', async () => {
-    mockOllamaSuccess('Réponse');
+  it('sends the prompt and the correct parameters to Ollama', async () => {
+    mockOllamaSuccess('Response');
 
-    await callRoute(llamaPost, { prompt: "Qu'est-ce que Kubernetes ?" });
+    await callRoute(llamaPost, { prompt: "What is Kubernetes?" });
 
     const body = JSON.parse((fetch as jest.Mock).mock.calls[0][1].body);
-    expect(body.prompt).toBe("Qu'est-ce que Kubernetes ?");
+    expect(body.prompt).toBe('What is Kubernetes?');
     expect(body.model).toBe('llama3:8b');
     expect(body.stream).toBe(false);
   });
 });
 
 // ============================================================
-// Tests — Route /api/llava (llava:7b — texte + image + audio)
+// Tests — Route /api/llava (llava:7b — text + image + audio)
 // ============================================================
 describe('POST /api/llava', () => {
-
   beforeEach(() => jest.clearAllMocks());
 
-  it('retourne une réponse avec un prompt texte', async () => {
-    mockOllamaSuccess('Description de llava');
+  it('returns a response with a text prompt', async () => {
+    mockOllamaSuccess('Llava description');
 
-    const res = await callRoute(llavaPost, { prompt: 'Décris cette image' });
+    const res = await callRoute(llavaPost, { prompt: 'Describe this image' });
 
     expect(fetch).toHaveBeenCalledWith(
       'http://ollama:11434/api/generate',
@@ -173,12 +171,12 @@ describe('POST /api/llava', () => {
         body: expect.stringContaining('"model":"llava:7b"'),
       })
     );
-    expect(res.data).toEqual({ response: 'Description de llava' });
+    expect(res.data).toEqual({ response: 'Llava description' });
     expect(res.status).toBe(200);
   });
 
-  it('retourne une réponse avec une image (base64)', async () => {
-    mockOllamaSuccess('Je vois un chat');
+  it('returns a response with an image (base64)', async () => {
+    mockOllamaSuccess('I see a cat');
     const fakeImage = 'base64encodedimage==';
 
     const res = await callRoute(llavaPost, { image: fakeImage });
@@ -189,8 +187,8 @@ describe('POST /api/llava', () => {
     expect(res.status).toBe(200);
   });
 
-  it('retourne une réponse avec audio', async () => {
-    mockOllamaSuccess('Transcription audio');
+  it('returns a response with audio', async () => {
+    mockOllamaSuccess('Audio transcription');
 
     const res = await callRoute(llavaPost, { audio: 'base64audio==' });
 
@@ -199,21 +197,21 @@ describe('POST /api/llava', () => {
     expect(res.status).toBe(200);
   });
 
-  it('retourne une réponse avec prompt + image combinés', async () => {
-    mockOllamaSuccess('Réponse combinée');
+  it('returns a response with prompt + image combined', async () => {
+    mockOllamaSuccess('Combined response');
 
     const res = await callRoute(llavaPost, {
-      prompt: "Qu'est-ce que tu vois ?",
+      prompt: 'What do you see?',
       image: 'base64image==',
     });
 
     const body = JSON.parse((fetch as jest.Mock).mock.calls[0][1].body);
-    expect(body.prompt).toBe("Qu'est-ce que tu vois ?");
+    expect(body.prompt).toBe('What do you see?');
     expect(body.images).toEqual(['base64image==']);
     expect(res.status).toBe(200);
   });
 
-  it('retourne 400 si prompt, image et audio sont tous absents', async () => {
+  it('returns 400 if prompt, image, and audio are all missing', async () => {
     const res = await callRoute(llavaPost, {});
 
     expect(res.status).toBe(400);
@@ -221,7 +219,7 @@ describe('POST /api/llava', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it('retourne 500 si Ollama échoue', async () => {
+  it('returns 500 if Ollama fails', async () => {
     mockOllamaError();
 
     const res = await callRoute(llavaPost, { prompt: 'Test' });
@@ -230,7 +228,7 @@ describe('POST /api/llava', () => {
     expect(res.data).toEqual({ error: 'Failed to get response from Ollama' });
   });
 
-  it('retourne 500 si erreur réseau', async () => {
+  it('returns 500 if network error occurs', async () => {
     mockOllamaNetworkError('ECONNREFUSED');
 
     const res = await callRoute(llavaPost, { prompt: 'Test' });
@@ -239,10 +237,10 @@ describe('POST /api/llava', () => {
     expect(res.data.error).toBe('ECONNREFUSED');
   });
 
-  it("n'envoie pas images si image est absent", async () => {
-    mockOllamaSuccess('Réponse texte');
+  it("does not send images if image is missing", async () => {
+    mockOllamaSuccess('Text response');
 
-    await callRoute(llavaPost, { prompt: 'Texte seul' });
+    await callRoute(llavaPost, { prompt: 'Single text' });
 
     const body = JSON.parse((fetch as jest.Mock).mock.calls[0][1].body);
     expect(body.images).toBeUndefined();
@@ -250,16 +248,15 @@ describe('POST /api/llava', () => {
 });
 
 // ============================================================
-// Tests — Route /api/gemma (gemma4:12b — texte + image + audio + video)
+// Tests — Route /api/gemma (gemma4:12b — text + image + audio + video)
 // ============================================================
 describe('POST /api/gemma', () => {
-
   beforeEach(() => jest.clearAllMocks());
 
-  it('retourne une réponse avec un prompt texte', async () => {
-    mockOllamaSuccess('  Réponse de gemma4  ');
+  it('returns a response with a text prompt', async () => {
+    mockOllamaSuccess('  Gemma response  ');
 
-    const res = await callRoute(gemmaPost, { prompt: 'Explique Docker' });
+    const res = await callRoute(gemmaPost, { prompt: 'Explain Docker' });
 
     expect(fetch).toHaveBeenCalledWith(
       'http://ollama:11434/api/generate',
@@ -267,12 +264,12 @@ describe('POST /api/gemma', () => {
         body: expect.stringContaining('"model":"gemma4:12b"'),
       })
     );
-    expect(res.data).toEqual({ response: 'Réponse de gemma4' });
+    expect(res.data).toEqual({ response: 'Gemma response' });
     expect(res.status).toBe(200);
   });
 
-  it('utilise le prompt par défaut si absent mais image fournie', async () => {
-    mockOllamaSuccess("Analyse de l'image");
+  it('uses the default prompt if missing but an image is provided', async () => {
+    mockOllamaSuccess("Image analysis");
 
     const res = await callRoute(gemmaPost, { image: 'base64image==' });
 
@@ -282,12 +279,12 @@ describe('POST /api/gemma', () => {
     expect(res.status).toBe(200);
   });
 
-  it('envoie la vidéo à Ollama si fournie', async () => {
-    mockOllamaSuccess('Analyse vidéo');
+  it('sends the video to Ollama if provided', async () => {
+    mockOllamaSuccess('Video analysis');
 
     const res = await callRoute(gemmaPost, {
       video: 'base64video==',
-      prompt: 'Analyse',
+      prompt: 'Analyze',
     });
 
     const body = JSON.parse((fetch as jest.Mock).mock.calls[0][1].body);
@@ -295,25 +292,25 @@ describe('POST /api/gemma', () => {
     expect(res.status).toBe(200);
   });
 
-  it('retourne une réponse avec tous les médias combinés', async () => {
-    mockOllamaSuccess('Réponse multimodale');
+  it('returns a response with all media combined', async () => {
+    mockOllamaSuccess('Multimodal response');
 
     const res = await callRoute(gemmaPost, {
-      prompt: 'Analyse tout',
+      prompt: 'Analyze everything',
       image: 'img==',
       audio: 'aud==',
       video: 'vid==',
     });
 
     const body = JSON.parse((fetch as jest.Mock).mock.calls[0][1].body);
-    expect(body.prompt).toBe('Analyse tout');
+    expect(body.prompt).toBe('Analyze everything');
     expect(body.images).toEqual(['img==']);
     expect(body.audio).toBe('aud==');
     expect(body.video).toBe('vid==');
     expect(res.status).toBe(200);
   });
 
-  it('retourne 400 si tous les champs sont absents', async () => {
+  it('returns 400 if all fields are missing', async () => {
     const res = await callRoute(gemmaPost, {});
 
     expect(res.status).toBe(400);
@@ -323,7 +320,7 @@ describe('POST /api/gemma', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it('retourne 500 si Ollama échoue', async () => {
+  it('returns 500 if Ollama fails', async () => {
     mockOllamaError('Service unavailable');
 
     const res = await callRoute(gemmaPost, { prompt: 'Test' });
@@ -332,7 +329,7 @@ describe('POST /api/gemma', () => {
     expect(res.data).toEqual({ error: 'Failed to get response from Ollama' });
   });
 
-  it('retourne 500 si erreur réseau', async () => {
+  it('returns 500 if the network fails', async () => {
     mockOllamaNetworkError('Timeout');
 
     const res = await callRoute(gemmaPost, { prompt: 'Test' });
@@ -341,18 +338,18 @@ describe('POST /api/gemma', () => {
     expect(res.data.error).toBe('Timeout');
   });
 
-  it('trimme bien la réponse Ollama', async () => {
-    mockOllamaSuccess('   réponse avec espaces   ');
+  it('trims the Ollama response correctly', async () => {
+    mockOllamaSuccess('   response with spaces   ');
 
     const res = await callRoute(gemmaPost, { prompt: 'Test trim' });
 
-    expect(res.data.response).toBe('réponse avec espaces');
+    expect(res.data.response).toBe('response with spaces');
   });
 
-  it("n'envoie pas images/audio/video si absents", async () => {
-    mockOllamaSuccess('Texte seul');
+  it("does not send images, audio, or video if they are absent", async () => {
+    mockOllamaSuccess('Plain text');
 
-    await callRoute(gemmaPost, { prompt: 'Texte uniquement' });
+    await callRoute(gemmaPost, { prompt: 'Plain text only' });
 
     const body = JSON.parse((fetch as jest.Mock).mock.calls[0][1].body);
     expect(body.images).toBeUndefined();

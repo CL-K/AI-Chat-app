@@ -1,37 +1,37 @@
 # AI-Chat App
 
-Application de chat IA full-stack construite avec Next.js, intégrant trois modèles Ollama (llama3, llava, gemma4) avec un pipeline CI/CD complet et un déploiement GitOps automatisé sur Kubernetes.
+Full-stack AI chat application built with Next.js, integrating three Ollama models (llama3, llava, gemma4) with a complete CI/CD pipeline and automated GitOps deployment on Kubernetes.
 
-## 📋 Table des matières
+## 📋 Table of contents
 
-- [Vue d'ensemble](#vue-densemble)
+- [Overview](#overview)
 - [Architecture](#architecture)
-- [Prérequis](#prérequis)
+- [Prerequisites](#prerequisites)
 - [Installation](#installation)
-- [Variables d'environnement](#variables-denvironnement)
-- [Routes API](#routes-api)
+- [Environment variables](#environment-variables)
+- [API routes](#api-routes)
 - [Tests](#tests)
-- [Pipeline CI/CD](#pipeline-cicd)
+- [CI/CD pipeline](#cicd-pipeline)
 - [Dockerfile](#dockerfile)
-- [Structure du projet](#structure-du-projet)
-- [Repos liés](#repos-liés)
+- [Project structure](#project-structure)
+- [Related repositories](#related-repositories)
 
-## 🎯 Vue d'ensemble
+## 🎯 Overview
 
-AI-Chat est une plateforme de chat IA self-hosted qui permet d'interagir avec trois modèles différents via une interface web. L'application communique avec un serveur Ollama déployé sur Kubernetes pour l'inférence des modèles.
+AI-Chat is a self-hosted AI chat platform that allows interaction with three different models through a web interface. The application communicates with an Ollama server deployed on Kubernetes for model inference.
 
-**Modèles disponibles :**
+**Available models:**
 
-| Modèle | Capacités | Route |
+| Model | Capabilities | Route |
 |---|---|---|
-| `llama3:8b` | Génération de texte | `/llama` |
-| `llava:7b` | Texte + analyse d'images + audio | `/llava` |
-| `gemma4:12b` | Texte + image + audio + vidéo | `/gemma` |
+| `llama3:8b` | Text generation | `/llama` |
+| `llava:7b` | Text + image + audio analysis | `/llava` |
+| `gemma4:12b` | Text + image + audio + video | `/gemma` |
 
 ## 🏗️ Architecture
 
 ```
-Utilisateur
+User
     │
     ▼
 Next.js Frontend (port 3000)
@@ -42,162 +42,162 @@ Next.js Frontend (port 3000)
                           │
                           ▼
               http://ollama:11434/api/generate
-              (Service Kubernetes interne)
+              (Internal Kubernetes Service)
 ```
 
-**Stack technique :**
-- **Frontend** : Next.js 16 (App Router, TypeScript)
-- **Styling** : Tailwind CSS
-- **Tests** : Jest + ts-jest (23 tests unitaires)
-- **CI/CD** : GitHub Actions
-- **Registry** : GitHub Container Registry (GHCR)
-- **Déploiement** : Kubernetes (K3s) via ArgoCD GitOps
-- **Sécurité** : Trivy scan bloquant sur CRITICAL/HIGH
+**Technical stack:**
+- **Frontend**: Next.js 16 (App Router, TypeScript)
+- **Styling**: Tailwind CSS
+- **Tests**: Jest + ts-jest (23 unit tests)
+- **CI/CD**: GitHub Actions
+- **Registry**: GitHub Container Registry (GHCR)
+- **Deployment**: Kubernetes (K3s) via ArgoCD GitOps
+- **Security**: Trivy scan blocking on CRITICAL/HIGH
 
-## 📦 Prérequis
+## 📦 Prerequisites
 
 - **Node.js** >= 20
 - **npm** >= 10
-- **Docker** (pour le build de l'image)
-- **Ollama** accessible sur `http://ollama:11434` (ou configurer `OLLAMA_API_URL`)
+- **Docker** (for image builds)
+- **Ollama** accessible at `http://ollama:11434` (or configure `OLLAMA_API_URL`)
 
 ## 🚀 Installation
 
-### 1. Cloner le repo
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/CL-KRMA/AI-Chat-app
 cd AI-Chat-app/AI-Chat
 ```
 
-### 2. Installer les dépendances
+### 2. Install dependencies
 
 ```bash
 npm ci
 ```
 
-### 3. Configurer les variables d'environnement
+### 3. Configure environment variables
 
 ```bash
 cp .env.example .env.local
-# Éditer .env.local avec tes valeurs
+# Edit .env.local with your values
 ```
 
-### 4. Lancer en développement
+### 4. Run in development mode
 
 ```bash
 npm run dev
 ```
 
-L'application est accessible sur `http://localhost:3000`.
+The application is available at `http://localhost:3000`.
 
-### 5. Lancer avec Docker Compose (recommandé)
+### 5. Run with Docker Compose (recommended)
 
 ```bash
-# À la racine du repo
+# At the repo root
 docker-compose up
 ```
 
-Démarre l'application Next.js et Ollama ensemble.
+Starts the Next.js app and Ollama together.
 
-## ⚙️ Variables d'environnement
+## ⚙️ Environment variables
 
-| Variable | Valeur par défaut | Description |
+| Variable | Default value | Description |
 |---|---|---|
-| `OLLAMA_API_URL` | `http://ollama:11434` | URL du serveur Ollama |
-| `NODE_ENV` | `development` | Environnement Node.js |
+| `OLLAMA_API_URL` | `http://ollama:11434` | Ollama server URL |
+| `NODE_ENV` | `development` | Node.js environment |
 
-> En développement local, remplace `OLLAMA_API_URL` par `http://localhost:11434` si Ollama tourne sur ta machine.
+> In local development, set `OLLAMA_API_URL` to `http://localhost:11434` if Ollama is running on your machine.
 
-## 🔌 Routes API
+## 🔌 API routes
 
 ### POST `/api/llama`
 
-Génération de texte avec **llama3:8b**.
+Text generation with **llama3:8b**.
 
-**Body :**
+**Body:**
 ```json
 {
-  "prompt": "Explique Kubernetes en 3 lignes"
+  "prompt": "Explain Kubernetes in 3 lines"
 }
 ```
 
-**Réponse :**
+**Response:**
 ```json
 {
-  "response": "Kubernetes est un orchestrateur de conteneurs..."
+  "response": "Kubernetes is a container orchestrator..."
 }
 ```
 
-**Codes de retour :**
-- `200` — réponse générée avec succès
-- `400` — prompt manquant
-- `500` — erreur Ollama ou réseau
+**Return codes:**
+- `200` — response generated successfully
+- `400` — missing prompt
+- `500` — Ollama or network error
 
 ---
 
 ### POST `/api/llava`
 
-Analyse texte + image + audio avec **llava:7b**.
+Text + image + audio analysis with **llava:7b**.
 
-**Body :**
+**Body:**
 ```json
 {
-  "prompt": "Décris cette image",
+  "prompt": "Describe this image",
   "image": "<base64>",
   "audio": "<base64>"
 }
 ```
 
-> `prompt`, `image` et `audio` sont optionnels mais au moins un est requis. Si `prompt` est absent, utilise `"Analyze this content"` par défaut.
+> `prompt`, `image`, and `audio` are optional, but at least one is required. If `prompt` is missing, it defaults to `"Analyze this content"`.
 
-**Codes de retour :**
-- `200` — réponse générée
-- `400` — prompt, image et audio tous absents
-- `500` — erreur Ollama ou réseau
+**Return codes:**
+- `200` — response generated
+- `400` — prompt, image, and audio all missing
+- `500` — Ollama or network error
 
 ---
 
 ### POST `/api/gemma`
 
-Analyse multimodale avec **gemma4:12b** — texte, image, audio et vidéo.
+Multimodal analysis with **gemma4:12b** — text, image, audio, and video.
 
-**Body :**
+**Body:**
 ```json
 {
-  "prompt": "Analyse ce contenu",
+  "prompt": "Analyze this content",
   "image": "<base64>",
   "audio": "<base64>",
   "video": "<base64>"
 }
 ```
 
-> Au moins un champ requis. Si `prompt` est absent, utilise `"Analyze this content"` par défaut.
+> At least one field is required. If `prompt` is missing, it defaults to `"Analyze this content"`.
 
-**Codes de retour :**
-- `200` — réponse générée
-- `400` — tous les champs absents
-- `500` — erreur Ollama ou réseau
+**Return codes:**
+- `200` — response generated
+- `400` — all fields missing
+- `500` — Ollama or network error
 
 ---
 
 ### POST `/api/chat`
 
-Route générique utilisant **llava:7b** — alias pour `/api/llava`.
+Generic route using **llava:7b** — alias for `/api/llava`.
 
 ## 🧪 Tests
 
-Les tests unitaires mockent `fetch` vers Ollama — aucune instance Ollama nécessaire pour les faire tourner.
+The unit tests mock `fetch` to Ollama — no local Ollama instance is required to run them.
 
 ```bash
-# Lancer les tests
+# Run the tests
 npm test
 
-# Lancer les tests en mode watch
+# Run tests in watch mode
 npm run test:watch
 ```
 
-**Résultat attendu :**
+**Expected result:**
 ```
 PASS  test/api.test.ts
   POST /api/llama    ✓ 6 tests
@@ -207,18 +207,18 @@ PASS  test/api.test.ts
 Tests: 23 passed, 23 total
 ```
 
-**Ce que les tests valident :**
-- Réponse correcte avec un input valide
-- Code `400` si les champs requis sont absents
-- Code `500` si Ollama répond avec une erreur
-- Code `500` si erreur réseau (fetch throw)
-- Bon modèle appelé dans le body de la requête (`llama3:8b`, `llava:7b`, `gemma4:12b`)
-- Trim de la réponse Ollama
-- Médias (image, audio, video) transmis ou ignorés correctement
+**What the tests validate:**
+- Correct response with valid input
+- `400` status when required fields are missing
+- `500` status if Ollama returns an error
+- `500` status on network error (fetch throw)
+- Correct model used in the request body (`llama3:8b`, `llava:7b`, `gemma4:12b`)
+- Ollama response trimmed correctly
+- Media (image, audio, video) passed through or ignored correctly
 
-## 🔄 Pipeline CI/CD
+## 🔄 CI/CD pipeline
 
-Le pipeline GitHub Actions se déclenche à chaque push sur `main` :
+The GitHub Actions pipeline runs on every push to `main`:
 
 ```
 push main
@@ -229,66 +229,66 @@ push main
   │                                               ▼
   │                                       security (Trivy scan)
   │                                               │
-  │                                      si scan OK → promote :latest
+  │                                     if scan OK → promote :latest
   │                                               │
   └───────────────────────────────────────────────▼
                                           update-infra (GitOps)
-                                          → mise à jour frontend.yaml
-                                          → ArgoCD déploie sur K3s
+                                          → update frontend.yaml
+                                          → ArgoCD deploys to K3s
 ```
 
-**Fonctionnalités du pipeline :**
-- Cache npm (`setup-node`) — builds lint/tests plus rapides
-- Cache Docker (`type=gha`) — rebuilds plus rapides
-- Trivy bloquant sur `CRITICAL,HIGH` — aucune image vulnérable ne passe
-- `latest` promu uniquement après validation du scan
-- Notification Slack en cas d'échec
-- Mise à jour automatique du tag dans [AI-Chat-gitops](https://github.com/CL-KRMA/AI-Chat-gitops)
+**Pipeline features:**
+- npm cache (`setup-node`) — faster lint/test builds
+- Docker cache (`type=gha`) — faster rebuilds
+- Blocking Trivy scan on `CRITICAL,HIGH` — no vulnerable image passes
+- `latest` promoted only after scan validation
+- Slack notification on failure
+- Automatic tag update in [AI-Chat-gitops](https://github.com/CL-KRMA/AI-Chat-gitops)
 
 ## 🐳 Dockerfile
 
-Image multi-stage optimisée pour la production :
+Multi-stage image optimized for production:
 
 ```
-Stage 1 (deps)    — installation des dépendances npm
-Stage 2 (build)   — compilation Next.js (mode standalone)
-Stage 3 (runtime) — image finale légère (~80-100MB)
+Stage 1 (deps)    — install npm dependencies
+Stage 2 (build)   — compile Next.js (standalone mode)
+Stage 3 (runtime) — final lightweight image (~80-100MB)
 ```
 
-**Optimisations :**
-- Mode `standalone` Next.js — image 5x plus légère
-- Utilisateur non-root (`appuser`) — sécurité renforcée
-- `NEXT_TELEMETRY_DISABLED=1` — pas de données envoyées à Vercel
-- `HEALTHCHECK` intégré — détection automatique des crashs
-- Cache Docker optimisé — `package.json` copié avant le code source
+**Optimizations:**
+- Next.js `standalone` mode — image 5x lighter
+- Non-root user (`appuser`) — improved security
+- `NEXT_TELEMETRY_DISABLED=1` — no telemetry sent to Vercel
+- Built-in `HEALTHCHECK` — detects crashes automatically
+- Optimized Docker cache — `package.json` copied before source code
 
-> Requiert `output: 'standalone'` dans `next.config.ts`.
+> Requires `output: 'standalone'` in `next.config.ts`.
 
-## 📁 Structure du projet
+## 📁 Project structure
 
 ```
 AI-Chat-app/
 ├── .github/
 │   └── workflows/
-│       └── CI.yml              # Pipeline GitHub Actions
+│       └── CI.yml              # GitHub Actions pipeline
 ├── AI-Chat/
 │   ├── app/
 │   │   ├── api/
-│   │   │   ├── chat/route.ts   # Route générique (llava:7b)
-│   │   │   ├── gemma/route.ts  # Route gemma4:12b
-│   │   │   ├── llama/route.ts  # Route llama3:8b
-│   │   │   └── llava/route.ts  # Route llava:7b
-│   │   ├── gemma/page.tsx      # Page chat Gemma
-│   │   ├── llama/page.tsx      # Page chat Llama
-│   │   ├── llava/page.tsx      # Page chat Llava
+│   │   │   ├── chat/route.ts   # Generic route (llava:7b)
+│   │   │   ├── gemma/route.ts  # gemma4:12b route
+│   │   │   ├── llama/route.ts  # llama3:8b route
+│   │   │   └── llava/route.ts  # llava:7b route
+│   │   ├── gemma/page.tsx      # Gemma chat page
+│   │   ├── llama/page.tsx      # Llama chat page
+│   │   ├── llava/page.tsx      # Llava chat page
 │   │   ├── globals.css
 │   │   ├── layout.tsx
-│   │   └── page.tsx            # Page d'accueil
+│   │   └── page.tsx            # Home page
 │   ├── public/
 │   ├── test/
-│   │   └── api.test.ts         # 23 tests unitaires
+│   │   └── api.test.ts         # 23 unit tests
 │   ├── .dockerignore
-│   ├── .trivyignore            # CVE ignorées (devDependencies)
+│   ├── .trivyignore            # Ignored CVEs (devDependencies)
 │   ├── Dockerfile
 │   ├── jest.config.js
 │   ├── next.config.ts          # output: 'standalone'
@@ -297,18 +297,18 @@ AI-Chat-app/
 └── docker-compose.yml
 ```
 
-## 📚 Repos liés
+## 📚 Related repositories
 
 | Repo | Description |
 |---|---|
-| [AI-Chat-gitops](https://github.com/CL-KRMA/AI-Chat-gitops) | Manifests Kubernetes (GitOps) |
-| [AI-Chat-infra](https://github.com/CL-KRMA/AI-Chat-infra) | Infrastructure AWS (K3s cluster) |
+| [AI-Chat-gitops](https://github.com/CL-KRMA/AI-Chat-gitops) | Kubernetes manifests (GitOps) |
+| [AI-Chat-infra](https://github.com/CL-KRMA/AI-Chat-infra) | AWS infrastructure (K3s cluster) |
 
-## 📝 Licence
+## 📝 License
 
-Ce projet est sous licence MIT.  
-Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+This project is licensed under the MIT License.  
+See [LICENSE](LICENSE) for more details.
 
-## 👤 Auteur
+## 👤 Author
 
-Créé par Cheick — Juin 2026
+Created by Cheick — June 2026
