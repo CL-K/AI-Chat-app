@@ -66,7 +66,7 @@ Next.js Frontend (port 3000)
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/CL-KRMA/AI-Chat-app
+git clone https://github.com/cl-k/AI-Chat-app
 cd AI-Chat-app/AI-Chat
 ```
 
@@ -243,7 +243,7 @@ push main
 - Blocking Trivy scan on `CRITICAL,HIGH` — no vulnerable image passes
 - `latest` promoted only after scan validation
 - Slack notification on failure
-- Automatic tag update in [AI-Chat-gitops](https://github.com/CL-KRMA/AI-Chat-gitops)
+- Automatic tag update in [AI-Chat-gitops](https://github.com/cl-k/AI-Chat-gitops)
 
 ## 🐳 Dockerfile
 
@@ -301,8 +301,8 @@ AI-Chat-app/
 
 | Repo | Description |
 |---|---|
-| [AI-Chat-gitops](https://github.com/CL-KRMA/AI-Chat-gitops) | Kubernetes manifests (GitOps) |
-| [AI-Chat-infra](https://github.com/CL-KRMA/AI-Chat-infra) | AWS infrastructure (K3s cluster) |
+| [AI-Chat-gitops](https://github.com/cl-k/AI-Chat-gitops) | Kubernetes manifests (GitOps) |
+| [AI-Chat-infra](https://github.com/cl-k/AI-Chat-infra) | AWS infrastructure (K3s cluster) |
 
 ## 📝 License
 
